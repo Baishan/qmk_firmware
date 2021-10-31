@@ -41,10 +41,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_FN1] = LAYOUT(
         _______, KC_MYCM, KC_WHOM, KC_CALC, KC_MSEL, KC_MPRV, KC_MNXT, KC_MPLY, KC_MSTP, KC_MUTE, KC_PSCR, KC_SLCK, KC_PAUS, KC_CALC,          _______,
-        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______,
+        _______, KC_RGB_NUMS, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______,
         _______, _______, RGB_VAI, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, RESET,            KC_HOME,
         KC_CAPS, _______, RGB_VAD, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______,          KC_END,
-        _______,          RGB_NITE,RGB_HUI, _______, _______, _______, KC_NLCK, _______, _______, _______,          _______, RGB_MOD, _______,
+        _______,          RGB_NITE,RGB_HUI, _______, _______, _______, KC_NLCK, _______, _______, _______, _______,          _______, RGB_MOD, _______,
         _______, KC_WINLCK, _______,                            _______,                          _______, _______, _______, RGB_SPD, RGB_RMOD, RGB_SPI
     ),
 
@@ -82,6 +82,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
             encoder_action_rgbhue(clockwise);
         } else if (mods_state & MOD_BIT(KC_LALT)) {  // if holding Left Alt, change media next/prev track
             encoder_action_mediatrack(clockwise);
+        } else if (mods_state & MOD_BIT(KC_RALT)) {  // if holding Right Alt, change rgb brightness
+            encoder_action_rgb_brightness(clockwise);
         } else  {
             switch(get_highest_layer(layer_state)) {
             case _FN1:
@@ -102,6 +104,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     // Capslock, Scroll lock and Numlock  indicator on Left side lights.
     void rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         if (get_rgb_nightmode()) rgb_matrix_set_color_all(RGB_OFF);
+
+        uint16_t rgb_overrides = get_rgb_overrides();
+        if(rgb_overrides & 0x1){
+            for(int i = 1; i <= 10; ++i){
+                rgb_matrix_set_color(LED_LIST_NUMROW[i], RGB_DARK_ORANGE);
+            }
+        }
         if (IS_HOST_LED_ON(USB_LED_SCROLL_LOCK)) {
             rgb_matrix_set_color(LED_L1, RGB_GREEN);
             rgb_matrix_set_color(LED_L2, RGB_GREEN);
@@ -120,12 +129,16 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         #endif // INVERT_NUMLOCK_INDICATOR
 
         if (IS_HOST_LED_ON(USB_LED_CAPS_LOCK)) {
-            rgb_matrix_set_color(LED_L5, RGB_RED);
-            rgb_matrix_set_color(LED_L6, RGB_RED);
-            rgb_matrix_set_color(LED_L7, RGB_RED);
+            rgb_matrix_set_color(LED_LSFT, RGB_RED);
+            rgb_matrix_set_color(LED_RSFT, RGB_RED);
+
         }
         if (keymap_config.no_gui) {
             rgb_matrix_set_color(LED_LWIN, RGB_RED);  //light up Win key when disabled
+            rgb_matrix_set_color(LED_W, RGB_DARK_RED);  //light up Win key when disabled
+            rgb_matrix_set_color(LED_A, RGB_DARK_RED);  //light up Win key when disabled
+            rgb_matrix_set_color(LED_S, RGB_DARK_RED);  //light up Win key when disabled
+            rgb_matrix_set_color(LED_D, RGB_DARK_RED);  //light up Win key when disabled
         }
         switch(get_highest_layer(layer_state)){  // special handling per layer
         case _FN1:  // on Fn layer select what the encoder does when pressed
@@ -138,7 +151,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
             rgb_matrix_set_color(LED_F10, RGB_MAGENTA); //FN key
             rgb_matrix_set_color(LED_F11, RGB_MAGENTA); //FN key
             rgb_matrix_set_color(LED_F12, RGB_MAGENTA); //FN key
-            rgb_matrix_set_color(LED_INS, RGB_MAGENTA); //FN key
+            rgb_matrix_set_color(LED_INS, RGB_BLUE); //FN key
             rgb_matrix_set_color(LED_Z, RGB_MAGENTA); //FN key
 
             // Add RGB Timeout Indicator -- shows 0 to 139 using F row and num row;  larger numbers using 16bit code
@@ -160,11 +173,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
             rgb_matrix_set_color(LED_R4, RGB_MAGENTA);
             rgb_matrix_set_color(LED_R5, RGB_MAGENTA);
             rgb_matrix_set_color(LED_R6, RGB_MAGENTA);
-            break;
-        case _RAISE:
-            rgb_matrix_set_color(LED_R6, RGB_GREEN);
-            rgb_matrix_set_color(LED_R7, RGB_GREEN);
-            rgb_matrix_set_color(LED_R8, RGB_GREEN);
             break;
         default:
             break;

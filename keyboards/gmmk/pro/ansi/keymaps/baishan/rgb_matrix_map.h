@@ -19,6 +19,8 @@
     // Custom RGB Colours
     #define RGB_GODSPEED 0x00, 0xE4, 0xFF // colour for matching keycaps
     #define RGB_NAUTILUS 0x00, 0xA4, 0xA9 // Naurilus Font colours
+    #define RGB_DARK_RED 0xab, 0x00, 0x00 // Naurilus Font colours
+    #define RGB_DARK_ORANGE 0xd6, 0x8b, 0x13 // Naurilus Font colours
 
     // RGB LED locations
     enum led_location_map {
